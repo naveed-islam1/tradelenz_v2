@@ -1,6 +1,8 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, ReactNode, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, ReactNode, useState } from "react";
+
+import CSVImportModal from "@/components/csv-import-modal";
 
 type TradeDraft = {
   openDate: string;
@@ -49,10 +51,15 @@ const AddTrade = () => {
   const [confirmationInput, setConfirmationInput] = useState("");
   const [csvFileName, setCsvFileName] = useState("");
   const [feedback, setFeedback] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
 
   const updateDraft = <Key extends keyof TradeDraft>(key: Key, value: TradeDraft[Key]) => {
     setDraft((current) => ({ ...current, [key]: value }));
+  };
+
+  const selectCSVFile = (file: File) => {
+    setCsvFileName(file.name);
+    setIsCSVModalOpen(false);
   };
 
   const addConfirmation = () => {
@@ -91,18 +98,11 @@ const AddTrade = () => {
           </div>
           <button
             className="h-10 rounded-lg bg-gradient-to-r from-[#1a3357] to-[#2e4f7d] px-5 text-xs font-medium text-white transition hover:brightness-110"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setIsCSVModalOpen(true)}
             type="button"
           >
             Upload CSV
           </button>
-          <input
-            accept=".csv,text/csv"
-            className="sr-only"
-            onChange={(event) => setCsvFileName(event.target.files?.[0]?.name ?? "")}
-            ref={fileInputRef}
-            type="file"
-          />
         </header>
 
         {csvFileName && (
@@ -226,7 +226,7 @@ const AddTrade = () => {
           <div className="flex items-center gap-3">
             <button
               className="h-11 rounded-lg bg-gradient-to-r from-[#1a3357] to-[#2e4f7d] px-5 text-xs font-medium text-white transition hover:brightness-110"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => setIsCSVModalOpen(true)}
               type="button"
             >
               Upload CSV
@@ -242,6 +242,7 @@ const AddTrade = () => {
 
         {feedback && <p className="pb-8 text-sm text-[#9aaac0]" role="status">{feedback}</p>}
       </form>
+      <CSVImportModal isOpen={isCSVModalOpen} onClose={() => setIsCSVModalOpen(false)} onSelect={selectCSVFile} />
     </section>
   );
 };
