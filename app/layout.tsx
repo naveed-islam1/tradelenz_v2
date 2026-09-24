@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { Fira_Sans, Geist_Mono } from "next/font/google";
+import { Fira_Sans, Geist_Mono, Geist } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const firaSans = Fira_Sans({
   variable: "--font-fira-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -20,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${firaSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" className={cn("h-full", "antialiased", firaSans.variable, geistMono.variable, "font-sans", geist.variable)}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

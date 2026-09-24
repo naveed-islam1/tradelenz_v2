@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMemo, useState } from "react";
 
 type FilterState = {
@@ -86,7 +88,7 @@ const Dashboard = () => {
   };
 
   return (
-    <section className="min-h-screen bg-[#0d1627] px-6 py-8 text-[#e2ecf6] sm:px-10 lg:px-12" id="dashboard">
+    <section className="min-h-screen bg-bg-page px-6 py-8 text-[#e2ecf6] sm:px-10 lg:px-12" id="dashboard">
       <div className="mx-auto max-w-7xl">
         <header className="mb-7">
           <h1 className="text-[32px] font-bold leading-10 tracking-[-0.5px]">Dashboard</h1>
@@ -123,7 +125,7 @@ const Dashboard = () => {
                     <Image alt="" height={20} src={metric.icon} width={20} />
                   </span>
                 </div>
-                <p className={`mt-2 text-[28px] font-bold leading-[34px] tracking-[-0.3px] ${valueClass}`}>
+                <p className={`mt-2 text-[28px] font-bold leading-8.5 tracking-[-0.3px] ${valueClass}`}>
                   {metric.value}
                 </p>
               </article>
@@ -155,14 +157,14 @@ const Dashboard = () => {
               value={filters.tradeType}
             />
             <button
-              className="h-10 rounded-lg bg-gradient-to-r from-[#057854] to-[#21c45c] px-[18px] text-sm font-medium text-white shadow-[0_8px_20px_rgba(5,120,84,0.18)] transition hover:brightness-110"
+              className="h-10 rounded-lg bg-linear-to-r from-[#057854] to-[#21c45c] px-4.5 text-sm font-medium text-white shadow-[0_8px_20px_rgba(5,120,84,0.18)] transition hover:brightness-110"
               onClick={() => setAppliedFilters(filters)}
               type="button"
             >
               Apply
             </button>
             <button
-              className="h-10 rounded-lg border border-[#333f52] bg-gradient-to-r from-[#1a2a43] to-[#2d4f7d] px-[14px] text-sm font-medium text-white transition hover:brightness-110"
+              className="h-10 rounded-lg border border-[#333f52] bg-linear-to-r from-[#1a2a43] to-[#2d4f7d] px-3.5 text-sm font-medium text-white transition hover:brightness-110"
               onClick={clearFilters}
               type="button"
             >
@@ -178,11 +180,11 @@ const Dashboard = () => {
           <div className="mt-4 grid gap-4 lg:grid-cols-3">
             {trades.map((trade) => (
               <article
-                className="rounded-xl border border-[#333f52] bg-[#172033] p-[18px] shadow-[0_8px_18px_rgba(0,0,0,0.18)]"
+                className="rounded-xl border border-[#333f52] bg-[#172033] p-4.5 shadow-[0_8px_18px_rgba(0,0,0,0.18)]"
                 key={trade.id}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className={`rounded-full px-3 py-[5px] text-xs font-medium leading-4 ${resultPills[trade.direction]}`}>
+                  <span className={`rounded-full px-3 py-1.25 text-xs font-medium leading-4 ${resultPills[trade.direction]}`}>
                     {trade.direction}
                   </span>
                   <button
@@ -196,10 +198,10 @@ const Dashboard = () => {
                 <h3 className="mt-3 text-xl font-semibold leading-7">{trade.pair}</h3>
                 <p className="mt-1 text-sm leading-5 text-[#94a3b8]">{trade.openedAt}</p>
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <p className={`text-[28px] font-bold leading-[34px] tracking-[-0.3px] ${resultColors[trade.tone]}`}>
+                  <p className={`text-[28px] font-bold leading-8.5 tracking-[-0.3px] ${resultColors[trade.tone]}`}>
                     {trade.result}
                   </p>
-                  <a className="text-xs font-medium text-[#38bdf8] hover:text-[#7dd3fc]" href={`#${trade.id}`}>
+                  <a className="text-xs font-medium text-status-info hover:text-[#7dd3fc]" href={`#${trade.id}`}>
                     Open details
                   </a>
                 </div>
@@ -225,19 +227,20 @@ type FilterSelectProps = {
 };
 
 const FilterSelect = ({ label, value, options, onChange }: FilterSelectProps) => (
-  <label className="flex h-14 w-[210px] flex-col gap-1 rounded-lg border border-[#333f52] bg-[#202d44] px-3 py-2">
+  <label className="flex h-14 w-52.5 flex-col gap-1 rounded-lg border border-[#333f52] bg-bg-raised px-3 py-2">
     <span className="text-xs font-medium leading-4 text-[#94a3b8]">{label}</span>
-    <select
-      className="-mx-1 w-[calc(100%+0.5rem)] appearance-none bg-transparent px-1 text-sm leading-5 text-[#e2ecf6] outline-none"
-      onChange={(event) => onChange(event.target.value)}
-      value={value}
-    >
-      {options.map((option) => (
-        <option className="bg-[#172033]" key={option} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
+    <Select onValueChange={(nextValue) => nextValue && onChange(nextValue)} value={value}>
+      <SelectTrigger className="h-5 w-full border-0 bg-transparent px-0 text-sm leading-5 text-[#e2ecf6] hover:bg-transparent focus-visible:ring-0">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent className="border-[#3a4a64] bg-[#172033] text-[#e2ecf6]">
+        {options.map((option) => (
+          <SelectItem className="text-[#e2ecf6] focus:bg-bg-raised focus:text-[#e2ecf6]" key={option} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   </label>
 );
 

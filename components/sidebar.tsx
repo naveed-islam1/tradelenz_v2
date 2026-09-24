@@ -37,9 +37,12 @@ const Sidebar = ({ initialActiveItem = "Dashboard" }: SidebarProps) => {
       className={`flex min-h-screen w-60 shrink-0 flex-col px-4 pb-6 pt-7 ${surfaceClass}`}
       aria-label="Primary navigation"
     >
-      <div className="flex flex-col gap-0.5">
-        <p className="text-xl font-semibold leading-7 tracking-[-0.02em]">TradeLenz</p>
-        <p className={`text-xs font-medium leading-4 ${mutedClass}`}>TRADING JOURNAL</p>
+      <div className="flex items-center gap-2.5">
+        <Image alt="TradeLenz logo" height={28} priority src="/brand/tradelens-mark.svg" width={28} />
+        <div className="flex flex-col gap-0.5">
+          <p className="text-xl font-semibold leading-7 tracking-[-0.02em]">Trade <span className="text-status-positive">Lenz</span></p>
+          <p className={`text-xs font-medium leading-4 ${mutedClass}`}>TRADING JOURNAL</p>
+        </div>
       </div>
 
       <nav className="mt-[18px] flex flex-col gap-1" aria-label="TradeLenz sections">
@@ -71,7 +74,7 @@ const Sidebar = ({ initialActiveItem = "Dashboard" }: SidebarProps) => {
         })}
       </nav>
 
-      <button
+      {/* <button
         aria-pressed={isDark}
         className={`mt-auto flex h-10 w-full items-center justify-center gap-2.5 rounded-lg px-3 text-sm transition-colors ${secondaryClass} ${
           isDark ? "text-[#f1f5f9]" : "text-[#0f172a]"
@@ -81,7 +84,7 @@ const Sidebar = ({ initialActiveItem = "Dashboard" }: SidebarProps) => {
       >
         <Image alt="" height={18} src="/sidebar-icons/moon.svg" width={18} />
         <span>{isDark ? "Dark theme" : "Light theme"}</span>
-      </button>
+      </button> */}
     </aside>
   );
 };

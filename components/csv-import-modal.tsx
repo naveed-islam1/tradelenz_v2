@@ -1,6 +1,10 @@
 "use client";
 
-import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, DragEvent, useRef, useState } from "react";
+import { UploadIcon, XIcon } from "lucide-react";
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type CSVImportModalProps = {
   isOpen: boolean;
@@ -15,19 +19,6 @@ const CSVImportModal = ({ isOpen, onClose, onSelect }: CSVImportModalProps) => {
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   const selectFile = (nextFile: File | undefined) => {
     if (!nextFile) return;
@@ -48,9 +39,7 @@ const CSVImportModal = ({ isOpen, onClose, onSelect }: CSVImportModalProps) => {
     setFile(nextFile);
   };
 
-  const handleFileInput = (event: ChangeEvent<HTMLInputElement>) => {
-    selectFile(event.target.files?.[0]);
-  };
+  const handleFileInput = (event: ChangeEvent<HTMLInputElement>) => selectFile(event.target.files?.[0]);
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -65,29 +54,23 @@ const CSVImportModal = ({ isOpen, onClose, onSelect }: CSVImportModalProps) => {
   };
 
   return (
-    <div
-      aria-labelledby="csv-import-title"
-      aria-modal="true"
-      className="fixed inset-0 z-50 grid place-items-center bg-[#06101f]/80 px-6 py-8 backdrop-blur-sm"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) handleClose();
-      }}
-      role="dialog"
-    >
-      <section className="w-full max-w-[640px] rounded-2xl border border-[#3a4a64] bg-[#172033] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.42)]">
-        <header className="flex items-start justify-between gap-5">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent
+        className="w-[600px] max-w-[calc(100vw-48px)] gap-0 rounded-2xl border-[#333f52] bg-[#172033] px-7 pb-6 pt-7 text-[#e2ecf6] shadow-[0_8px_18px_rgba(0,0,0,0.18)] sm:max-w-[600px]"
+        showCloseButton={false}
+      >
+        <DialogHeader className="flex-row items-start justify-between gap-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#22c55e]">TradeLenz</p>
-            <h2 className="mt-2 text-[28px] font-bold leading-[34px] tracking-[-0.3px] text-[#e2ecf6]" id="csv-import-title">Import trades from CSV</h2>
-            <p className="mt-2 text-sm leading-5 text-[#94a3b8]">Upload one CSV file to add it to your trade-import flow.</p>
+            <DialogTitle className="text-xl font-semibold leading-7 text-[#e2ecf6]">Upload CSV</DialogTitle>
+            <DialogDescription className="mt-1.5 text-sm leading-5 text-[#94a3b8]">Import trades from a CSV file.</DialogDescription>
           </div>
-          <button aria-label="Close CSV import" className="grid size-9 place-items-center rounded-lg border border-[#3a4a64] bg-[#202d44] text-lg leading-none text-[#94a3b8] transition hover:text-white" onClick={handleClose} type="button">×</button>
-        </header>
+          <Button aria-label="Close CSV import" className="size-9 shrink-0 rounded-lg border-[#333f52] bg-[#202d44] text-[#94a3b8] hover:bg-[#202d44] hover:text-white" onClick={handleClose} size="icon-lg" variant="outline">
+            <XIcon />
+          </Button>
+        </DialogHeader>
 
         <div
-          className={`mt-6 rounded-xl border border-dashed p-8 text-center transition ${
-            isDragging ? "border-[#22c55e] bg-[#15382d]" : "border-[#4b5c76] bg-[#202d44]/60"
-          }`}
+          className={`mt-5 flex h-[222px] flex-col items-center justify-center rounded-xl border border-dashed p-6 text-center transition ${isDragging ? "border-[#22c55e] bg-[#15382d]" : "border-[#38bdf7] bg-[#202d44]"}`}
           onDragEnter={(event) => {
             event.preventDefault();
             setIsDragging(true);
@@ -99,11 +82,18 @@ const CSVImportModal = ({ isOpen, onClose, onSelect }: CSVImportModalProps) => {
           onDragOver={(event) => event.preventDefault()}
           onDrop={handleDrop}
         >
-          <div className="mx-auto grid size-11 place-items-center rounded-xl border border-[#3c4d67] bg-[#172033] text-xl text-[#22c55e]">CSV</div>
-          <h3 className="mt-4 text-base font-semibold text-[#e2ecf6]">Drag and drop your CSV here</h3>
-          <p className="mt-2 text-sm leading-5 text-[#94a3b8]">CSV files only · Maximum file size 10 MB</p>
-          <button className="mt-5 h-10 rounded-lg border border-[#3c4d67] bg-[#172033] px-4 text-xs font-medium text-[#e2ecf6] transition hover:bg-[#2a3a55]" onClick={() => inputRef.current?.click()} type="button">Browse files</button>
+          <div className="mx-auto grid size-11 place-items-center rounded-xl border border-[#3c4d67] bg-[#172033] text-[#22c55e]">
+            <UploadIcon className="size-5" />
+          </div>
+          <h3 className="mt-4 text-base font-semibold text-[#e2ecf6]">Drop your CSV file here</h3>
+          <p className="mt-2 text-sm leading-5 text-[#94a3b8]">or choose a file from your device</p>
+          <Button className="mt-3 h-9 w-32 bg-gradient-to-r from-[#1a3357] to-[#2e4f7d] text-xs text-white hover:brightness-110" onClick={() => inputRef.current?.click()} variant="outline">Browse files</Button>
           <input accept=".csv,text/csv" className="sr-only" onChange={handleFileInput} ref={inputRef} type="file" />
+        </div>
+
+        <div className="mt-5 flex flex-col gap-2 text-xs font-medium leading-4 text-[#94a3b8]">
+          <p>CSV files only · Maximum file size: 10 MB</p>
+          <p>Your file will be parsed and uploaded after selection.</p>
         </div>
 
         {error && <p className="mt-4 rounded-lg border border-[#61343c] bg-[#351f29] px-3 py-2.5 text-sm text-[#fca5a5]" role="alert">{error}</p>}
@@ -114,23 +104,16 @@ const CSVImportModal = ({ isOpen, onClose, onSelect }: CSVImportModalProps) => {
               <p className="truncate text-sm font-semibold text-[#e2ecf6]">{file.name}</p>
               <p className="mt-1 text-xs text-[#9ed8b3]">{(file.size / 1024 / 1024).toFixed(2)} MB · Ready to continue</p>
             </div>
-            <button className="shrink-0 text-xs font-medium text-[#9ed8b3] transition hover:text-white" onClick={() => setFile(null)} type="button">Remove</button>
+            <Button className="h-auto shrink-0 px-0 text-xs text-[#9ed8b3] hover:bg-transparent hover:text-white" onClick={() => setFile(null)} variant="ghost">Remove</Button>
           </div>
         )}
 
-        <footer className="mt-6 flex items-center justify-end gap-3 border-t border-[#333f52] pt-5">
-          <button className="h-10 rounded-lg px-4 text-xs font-medium text-[#94a3b8] transition hover:text-[#e2ecf6]" onClick={handleClose} type="button">Cancel</button>
-          <button
-            className="h-10 rounded-lg bg-gradient-to-r from-[#057854] to-[#21c45c] px-5 text-xs font-medium text-white shadow-[0_8px_20px_rgba(5,120,84,0.18)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45"
-            disabled={!file}
-            onClick={() => file && onSelect(file)}
-            type="button"
-          >
-            Continue with CSV
-          </button>
+        <footer className="mt-5 flex h-11 items-center justify-end gap-3">
+          <Button className="h-11 w-[88px] bg-gradient-to-r from-[#1a3357] to-[#2e4f7d] text-xs text-white hover:brightness-110" onClick={handleClose} variant="ghost">Cancel</Button>
+          <Button className="h-11 w-[94px] bg-gradient-to-r from-[#057854] to-[#21c45c] text-xs text-white shadow-[0_8px_20px_rgba(5,120,84,0.18)] hover:brightness-110" disabled={!file} onClick={() => file && onSelect(file)}>Upload</Button>
         </footer>
-      </section>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

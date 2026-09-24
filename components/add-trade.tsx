@@ -3,6 +3,8 @@
 import { FormEvent, KeyboardEvent, ReactNode, useState } from "react";
 
 import CSVImportModal from "@/components/csv-import-modal";
+import DateTimeSelector from "@/components/date-time-selector";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type TradeDraft = {
   openDate: string;
@@ -89,7 +91,7 @@ const AddTrade = () => {
   };
 
   return (
-    <section className="min-h-screen bg-[#0d1627] px-6 py-8 text-[#e2ecf6] sm:px-10 lg:px-12">
+    <section className="min-h-screen bg-[#0d1627] px-6 py-8 text-[#e2ecf6] sm:px-10 lg:px-10">
       <form className="mx-auto max-w-7xl" onSubmit={handleSubmit}>
         <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -114,12 +116,8 @@ const AddTrade = () => {
         <div className="grid gap-6 lg:grid-cols-2">
           <FormSection title="Date & Time">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Open Date & Time" required>
-                <input className={inputClass} onChange={(event) => updateDraft("openDate", event.target.value)} required type="datetime-local" value={draft.openDate} />
-              </Field>
-              <Field label="Close Date & Time">
-                <input className={inputClass} onChange={(event) => updateDraft("closeDate", event.target.value)} type="datetime-local" value={draft.closeDate} />
-              </Field>
+              <DateTimeSelector label="Open Date & Time" onChange={(value) => updateDraft("openDate", value)} required value={draft.openDate} />
+              <DateTimeSelector label="Close Date & Time" onChange={(value) => updateDraft("closeDate", value)} value={draft.closeDate} />
             </div>
           </FormSection>
 
@@ -281,13 +279,18 @@ type SelectFieldProps = {
 
 const SelectField = ({ label, value, options, onChange }: SelectFieldProps) => (
   <Field label={label}>
-    <select className={inputClass} onChange={(event) => onChange(event.target.value)} value={value}>
-      {options.map((option) => (
-        <option className="bg-[#172033]" key={option} value={option === options[0] ? "" : option}>
-          {option}
-        </option>
-      ))}
-    </select>
+    <Select onValueChange={(nextValue) => nextValue && onChange(nextValue)} value={value || undefined}>
+      <SelectTrigger className="h-11 w-full border-[#333f52] bg-[#202d44] px-3 text-sm text-[#e2ecf6] hover:bg-[#263650] focus-visible:border-[#22c55e] focus-visible:ring-0">
+        <SelectValue placeholder={options[0]} />
+      </SelectTrigger>
+      <SelectContent className="border-[#3a4a64] bg-[#172033] text-[#e2ecf6]">
+        {options.slice(1).map((option) => (
+          <SelectItem className="text-[#e2ecf6] focus:bg-[#202d44] focus:text-[#e2ecf6]" key={option} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   </Field>
 );
 

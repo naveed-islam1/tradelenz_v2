@@ -1,30 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
-type Trade = {
-  id: string;
-  instrument: string;
-  direction: "Buy" | "Sell";
-  entry: string;
-  exit: string;
-  quantity: string;
-  date: string;
-  month: string;
-  result: string;
-  tone: "positive" | "negative" | "break-even";
-};
-
-const sampleTrades: Trade[] = [
-  { id: "trade-01", instrument: "EURUSD", direction: "Buy", entry: "1.08642", exit: "1.08818", quantity: "0.20", date: "Sep 23, 2026", month: "September 2026", result: "+$124.50", tone: "positive" },
-  { id: "trade-02", instrument: "XAUUSD", direction: "Sell", entry: "2,334.86", exit: "2,337.10", quantity: "0.10", date: "Sep 23, 2026", month: "September 2026", result: "−$42.00", tone: "negative" },
-  { id: "trade-03", instrument: "GBPUSD", direction: "Buy", entry: "1.29354", exit: "1.29354", quantity: "0.15", date: "Sep 22, 2026", month: "September 2026", result: "$0.00", tone: "break-even" },
-  { id: "trade-04", instrument: "NAS100", direction: "Sell", entry: "19,488.2", exit: "19,432.6", quantity: "0.05", date: "Sep 21, 2026", month: "September 2026", result: "+$78.40", tone: "positive" },
-  { id: "trade-05", instrument: "USDJPY", direction: "Buy", entry: "146.184", exit: "146.032", quantity: "0.10", date: "Sep 19, 2026", month: "September 2026", result: "−$28.80", tone: "negative" },
-  { id: "trade-06", instrument: "EURUSD", direction: "Sell", entry: "1.08771", exit: "1.08698", quantity: "0.20", date: "Sep 18, 2026", month: "September 2026", result: "+$92.60", tone: "positive" },
-  { id: "trade-07", instrument: "XAUUSD", direction: "Buy", entry: "2,318.42", exit: "2,316.10", quantity: "0.08", date: "Aug 29, 2026", month: "August 2026", result: "−$18.56", tone: "negative" },
-  { id: "trade-08", instrument: "GBPUSD", direction: "Sell", entry: "1.30416", exit: "1.30298", quantity: "0.12", date: "Aug 27, 2026", month: "August 2026", result: "+$56.80", tone: "positive" },
-];
+import DeleteTradeModal from "@/components/delete-trade-modal";
+import { sampleTrades, type Trade } from "@/lib/trade-data";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const pageSize = 6;
 
@@ -38,6 +19,7 @@ const AllTimeTrades = () => {
   const [trades, setTrades] = useState(sampleTrades);
   const [month, setMonth] = useState("All months");
   const [page, setPage] = useState(1);
+  const [tradePendingDelete, setTradePendingDelete] = useState<Trade | null>(null);
 
   const filteredTrades = useMemo(
     () => (month === "All months" ? trades : trades.filter((trade) => trade.month === month)),
@@ -52,8 +34,10 @@ const AllTimeTrades = () => {
     setPage(1);
   };
 
-  const removeTrade = (id: string) => {
-    setTrades((current) => current.filter((trade) => trade.id !== id));
+  const confirmDelete = () => {
+    if (!tradePendingDelete) return;
+    setTrades((current) => current.filter((trade) => trade.id !== tradePendingDelete.id));
+    setTradePendingDelete(null);
   };
 
   return (
@@ -68,18 +52,16 @@ const AllTimeTrades = () => {
             <p className="mt-1 text-sm leading-5 text-[#94a3b8]">Review every trade in your journal history.</p>
           </div>
 
-          <label className="flex h-11 min-w-[210px] items-center rounded-lg border border-[#333f52] bg-[#202d44] px-3">
-            <span className="sr-only">Filter by month and year</span>
-            <select
-              className="w-full appearance-none bg-transparent text-sm text-[#e2ecf6] outline-none"
-              onChange={(event) => changeMonth(event.target.value)}
-              value={month}
-            >
-              <option className="bg-[#172033]" value="All months">All months and years</option>
-              <option className="bg-[#172033]" value="September 2026">September 2026</option>
-              <option className="bg-[#172033]" value="August 2026">August 2026</option>
-            </select>
-          </label>
+          <Select onValueChange={(nextValue) => nextValue && changeMonth(nextValue)} value={month}>
+            <SelectTrigger aria-label="Filter by month and year" className="h-11 min-w-[210px] border-[#333f52] bg-[#202d44] px-3 text-sm text-[#e2ecf6] hover:bg-[#263650] focus-visible:border-[#22c55e] focus-visible:ring-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-[#3a4a64] bg-[#172033] text-[#e2ecf6]">
+              <SelectItem className="text-[#e2ecf6] focus:bg-[#202d44] focus:text-[#e2ecf6]" value="All months">All months and years</SelectItem>
+              <SelectItem className="text-[#e2ecf6] focus:bg-[#202d44] focus:text-[#e2ecf6]" value="September 2026">September 2026</SelectItem>
+              <SelectItem className="text-[#e2ecf6] focus:bg-[#202d44] focus:text-[#e2ecf6]" value="August 2026">August 2026</SelectItem>
+            </SelectContent>
+          </Select>
         </header>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -110,7 +92,7 @@ const AllTimeTrades = () => {
         {visibleTrades.length > 0 ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {visibleTrades.map((trade) => (
-              <TradeCard key={trade.id} onDelete={() => removeTrade(trade.id)} trade={trade} />
+              <TradeCard key={trade.id} onDelete={() => setTradePendingDelete(trade)} trade={trade} />
             ))}
           </div>
         ) : (
@@ -119,6 +101,13 @@ const AllTimeTrades = () => {
             <p className="mt-2 text-sm text-[#94a3b8]">No sample trades match the selected month and year.</p>
           </div>
         )}
+
+        <DeleteTradeModal
+          onConfirm={confirmDelete}
+          onOpenChange={(open) => !open && setTradePendingDelete(null)}
+          open={Boolean(tradePendingDelete)}
+          trade={tradePendingDelete}
+        />
 
         {filteredTrades.length > pageSize && (
           <nav className="mt-7 flex items-center justify-center gap-2" aria-label="Trade history pagination">
@@ -181,7 +170,9 @@ const TradeCard = ({ trade, onDelete }: { trade: Trade; onDelete: () => void }) 
         <p className={`mt-1 text-2xl font-bold leading-7 ${style.result}`}>{trade.result}</p>
       </div>
 
-      <a className="mt-4 inline-flex text-xs font-medium text-[#38bdf8] transition hover:text-[#7dd3fc]" href={`#${trade.id}`}>View details</a>
+      <Link className="mt-4 inline-flex text-xs font-medium text-[#38bdf8] transition hover:text-[#7dd3fc]" href={`/trade/${trade.id}`}>
+        View details
+      </Link>
     </article>
   );
 };
